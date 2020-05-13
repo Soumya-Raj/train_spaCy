@@ -2,13 +2,18 @@ import spacy
 from spacy.gold import GoldParse
 from spacy.scorer import Scorer
 
-def evaluate(nlp, examples, ent='PERSON'):
+LABELS = ['BRAND', 'ORG', 'CARDINAL', 'DATE', 'GPE', 'LOC', 'MONEY', 'PRODUCT', 'ORDINAL', 'PERCENT', 'NORP', 'EVENT', 'WORK_OF_ART', 'FAC', 'PERSON', 'TIME', 'PRODUCT_DESC', 'QUANTITY', 'HAIR_TYPE', 'QUERY', 'CONSUMER_TYPE']
+
+def custom_model_evaluate(nlp, examples, label=LABELS):
     scorer = Scorer()
     for input_, annot in examples:
         text_entities = []
         for entity in annot.get('entities'):
-            if ent in entity:
-                text_entities.append(entity)
+            #print(entity)
+            for l in label:
+                print(l)
+                if l in entity:
+                    text_entities.append(entity)
         doc_gold_text = nlp.make_doc(input_)
         gold = GoldParse(doc_gold_text, entities=text_entities)
         pred_value = nlp(input_)
@@ -23,6 +28,6 @@ examples = [
     ("Tom Watson: people's vote more likely given weakness of May's position",{"entities":[[0,10,"PERSON"],[56,59,"PERSON"]]}),
 ]
 
-nlp = spacy.load('en_core_web_lg')
-results = evaluate(nlp, examples)
+nlp = spacy.load('en_core_web_sm')
+results = custom_model_evaluate(nlp, examples)
 print(results)

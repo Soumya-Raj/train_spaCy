@@ -10,21 +10,7 @@ import pandas as pd
 from spacy.util import decaying
 import spacy.scorer
 
-#optimisation1
-def get_batches(train_data, model_type):
-    max_batch_sizes = {"tagger": 32, "parser": 16, "ner": 16, "textcat": 64}
-    max_batch_size = max_batch_sizes[model_type]
-    if len(train_data) < 1000:
-        max_batch_size /= 2
-    if len(train_data) < 500:
-        max_batch_size /= 2
-    batch_size = compounding(1, max_batch_size, 1.001)
-    batches = minibatch(train_data, size=batch_size)
-    return batches
-
-
 LABELS = ['BRAND', 'ORG', 'CARDINAL', 'DATE', 'GPE', 'LOC', 'MONEY', 'PRODUCT', 'ORDINAL', 'PERCENT', 'NORP', 'EVENT', 'WORK_OF_ART', 'FAC', 'PERSON', 'TIME', 'PRODUCT_DESC', 'QUANTITY', 'HAIR_TYPE', 'QUERY', 'CONSUMER_TYPE']
-
 TRAIN_DATA=[]
 
 with open('doccano_annotated_data\\doccano_fold3_converted.txt', 'r') as f:
@@ -38,6 +24,18 @@ TRAIN_DATA = ast.literal_eval(TRAIN_DATA)
     output_dir=("Optional output directory", "option", "o", Path),
     n_iter=("Number of training iterations", "option", "n", int),
 )
+
+#optimisation 1 - batch size
+def get_batches(train_data, model_type):
+    max_batch_sizes = {"tagger": 32, "parser": 16, "ner": 16, "textcat": 64}
+    max_batch_size = max_batch_sizes[model_type]
+    if len(train_data) < 1000:
+        max_batch_size /= 2
+    if len(train_data) < 500:
+        max_batch_size /= 2
+    batch_size = compounding(1, max_batch_size, 1.001)
+    batches = minibatch(train_data, size=batch_size)
+    return batches
 
 def main(model=None, new_model_name="incremental_model", output_dir='trained_model', n_iter=5):
     if model is not None:
