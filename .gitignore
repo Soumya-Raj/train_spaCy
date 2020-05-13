@@ -1,0 +1,15 @@
+.vscode
+amazon_dataset
+ORS_serachData
+validation_set_ORS
+train_fold1.log
+trained_model
+trained_model_bl
+trained_model_lg
+trained_model_lg2
+trained_model_lg3
+trained_model2
+trained_model3
+auto_annotated_data
+doccano_annotated_data
+Loss_plot
