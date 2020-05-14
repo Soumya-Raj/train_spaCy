@@ -18,12 +18,14 @@ class ModelEval:
     def model_evaluate(self):
         nlp = spacy.load(self.kwargs.get("model_name"))
         scorer = Scorer()
-        for input_, annot in self.kwargs.get("validation_set"):
+        validation_set = []
+        with open(self.kwargs.get("validation_set"), "w") as f:
+            validation_set = f.read()
+        for input_, annot in validation_set:
             text_entities = []
             for entity in annot.get("entities"):
                 print(self.labels)
                 for l in self.labels:
-                    #print(l)
                     if l in entity:
                         text_entities.append(entity)
             doc_gold_text = nlp.make_doc(input_)
@@ -72,7 +74,7 @@ examples = [
 def main(sys_arg1, sys_arg2, sys_arg3):
     start_time = time.time()
     dict_arg = {"model_name": sys_arg1,
-                "validation_set": examples, "entity_config_key": sys_arg3}
+                "validation_set": sys_arg2, "entity_config_key": sys_arg3}
     model_eval = ModelEval(**dict_arg)
     results = model_eval.model_evaluate()
     print(results)

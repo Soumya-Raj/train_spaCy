@@ -26,11 +26,11 @@ class ReadCSV:
             doc = nlp(str(d[speech_header]))
             for sent in doc.sents:
                 labels = []
-                labels = [labels.append(
-                    [e.start_char, e.end_char, e.label_]) for e in sent.ents]
+                for e in sent.ents:
+                    labels.append([e.start_char, e.end_char, e.label_]) 
                 annotated_list.append({"text": sent.text, "labels": labels})
         annotated_json = json.dumps(annotated_list)
-        # print(doccano_json)
+        print(annotated_json)
         return annotated_json
 
     def randomize_list(self, df_list):
@@ -78,7 +78,7 @@ def main(sys_arg1, sys_arg2, sys_arg3, sys_arg4):
                 "start_index": sys_arg3, "end_index": sys_arg4}
     read_csv = ReadCSV(**dict_arg)
     df_dict = read_csv.read_csv_as_df()
-    read_csv.randomize_list(df_dict)
+    #read_csv.randomize_list(df_dict)
     d_json = read_csv.auto_annotate_data(df_dict)
     read_csv.json_to_jsonl(d_json)
 

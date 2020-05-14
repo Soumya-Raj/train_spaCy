@@ -3,6 +3,7 @@ import json
 import os
 import configparser
 import time
+import ast
 from config.load_config_file import LoadConfigFile
 
 
@@ -29,7 +30,7 @@ class ConvertToJson:
 
             tmp_ents = []
             for e in line["entities"]:
-                if e[2] in [self.config["MODEL_ENTITIES"]["haircare_entities"]]:
+                if e[2] in ast.literal_eval(self.config["MODEL_ENTITIES"]["haircare_entities"]):
                     tmp_ents.append([e[0], e[1], e[2]])
                 line["entities"] = tmp_ents
             final_json.append(
