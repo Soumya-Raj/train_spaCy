@@ -1,12 +1,13 @@
 import configparser
-
+import os
 
 class LoadConfigFile:
+    def __init__(self,config_fpath):
+        self.config_fpath=config_fpath
 
-    def __init__(self):
-        pass
-
-    def read_config_file(self, config_fname):
+    def read_config_file(self):
         config = configparser.ConfigParser()
-        config.read("config\\%s" % config_fname, encoding="utf-8")
+        print(os.path.realpath(self.config_fpath))
+        config.read("%s" % os.path.realpath(self.config_fpath), encoding="utf-8")
         return config
+

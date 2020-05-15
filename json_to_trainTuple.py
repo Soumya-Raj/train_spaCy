@@ -3,6 +3,7 @@ import time
 import sys
 import ast
 
+
 class JsonToSpacy:
     def __init__(self, **kwargs):  # kwargs={"input_fname": sys_arg1}
         self.kwargs = kwargs
@@ -21,14 +22,16 @@ class JsonToSpacy:
             write.write(str(train_tuples))
         return train_tuples
 
+
 def main(sys_arg1):
     start_time = time.time()
     dict_arg = {"input_fname": sys_arg1}
-    convert_json = JsonToSpacy(** dict_arg)
-    train_tuples = convert_json.to_spacyformat()
+    convert_json = JsonToSpacy(**dict_arg)
+    convert_json.to_spacyformat()
     print(
         f"Converted json to spacy training tuple format in {time.time() - start_time} seconds"
     )
+
 
 if __name__ == "__main__":
     main(sys.argv[1])

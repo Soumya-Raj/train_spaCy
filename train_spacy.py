@@ -1,4 +1,3 @@
-import plac
 import random
 from pathlib import Path
 import spacy
@@ -6,77 +5,43 @@ import time
 from spacy.util import minibatch, compounding
 import ast
 import matplotlib.pyplot as plt
-import pandas as pd
 from spacy.util import decaying
 import spacy.scorer
 from config.load_config_file import LoadConfigFile
 from json_to_trainTuple import JsonToSpacy
-
-LABELS = [
-    "BRAND",
-    "ORG",
-    "CARDINAL",
-    "DATE",
-    "GPE",
-    "LOC",
-    "MONEY",
-    "PRODUCT",
-    "ORDINAL",
-    "PERCENT",
-    "NORP",
-    "EVENT",
-    "WORK_OF_ART",
-    "FAC",
-    "PERSON",
-    "TIME",
-    "PRODUCT_DESC",
-    "QUANTITY",
-    "HAIR_TYPE",
-    "QUERY",
-    "CONSUMER_TYPE",
-]
+import sys
+sys.path.append('..')
+import os
 
 
-with open("doccano_annotated_data\\doccano_fold3_converted.txt", "r") as f:
-    TRAIN_DATA = f.read()
-
-TRAIN_DATA = ast.literal_eval(TRAIN_DATA)
-
-
-@plac.annotations(
-    model=("Model name. Defaults to blank 'en' model.", "option", "m", str),
-    new_model_name=("New model name for model meta.", "option", "nm", str),
-    output_dir=("Optional output directory", "option", "o", Path),
-    n_iter=("Number of training iterations", "option", "n", int),
-    #jsonfile
-)
 class TrainSpacy:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.config = LoadConfigFile.read_config_file(self, "config_file.ini")
-        self.labels = [self.config["MODEL_ENTITIES"]
-                       [self.kwargs.get("entity_config_key")]]
+        # self.labels = [self.config["MODEL_ENTITIES"]
+        #                [self.kwargs.get("entity_config_key")]]
 
     # optimisation 1 - batch size
     def get_batches(self, train_data, model_type):
-        max_batch_sizes = {"tagger": 32,
-                           "parser": 16, "ner": 16, "textcat": 64}
+        max_batch_sizes = {"tagger": 32, "parser": 16, "ner": 16, "textcat": 64}
         max_batch_size = max_batch_sizes[model_type]
         if len(train_data) < 1000:
             max_batch_size /= 2
         if len(train_data) < 500:
             max_batch_size /= 2
-        batch_size = compounding(1, max_batch_size, 1.001)
+        batch_size = compounding(1, max_batch_size, 1.5)
         batches = minibatch(train_data, size=batch_size)
         return batches
 
-    def train_spacymodel(self,
-                         model=None, new_model_name="incremental_model", output_dir="trained_model", n_iter=5
-                         ):
-        train_data = JsonToSpacy.to_spacyformat()
-        if model is not None:
-            nlp = spacy.load(model)
-            print("Loaded model '%s'" % model)
+    def train_spacymodel(self):
+        train_data = JsonToSpacy.to_spacyformat(self)
+        #print(train_data)
+
+        labels = ast.literal_eval(self.config["MODEL_ENTITIES"][self.kwargs.get("entity_config_key")])
+        #print(labels)
+        if self.kwargs.get("model") is not None:
+            nlp = spacy.load(self.kwargs.get("model"))
+            print("Loaded model '%s'" % self.kwargs.get("model"))
         else:
             nlp = spacy.blank("en")
             print("Created blank 'en' model")
@@ -89,31 +54,35 @@ class TrainSpacy:
             ner = nlp.get_pipe("ner")
             print("Get ner pipeline")
 
-        for label in LABELS:
+        for label in labels:
+            #print(label)
             ner.add_label(label)
 
-        if model is None:
+        if self.kwargs.get("model") is None:
             optimizer = nlp.begin_training()
         else:
             optimizer = nlp.resume_training()
 
         pipe_exceptions = ["ner", "trf_wordpiecer", "trf_tok2vec"]
-        other_pipes = [
-            pipe for pipe in nlp.pipe_names if pipe not in pipe_exceptions]
+        other_pipes = [pipe for pipe in nlp.pipe_names if pipe not in pipe_exceptions]
         with nlp.disable_pipes(*other_pipes):  # only train NER
-            #optimisation 2 - dropout 
+            # optimisation 2 - dropout
             dropout = decaying(0.6, 0.2, 1e-4)
             # print("DROPOUT {}".format(dropout))
             loss_plot = []
-            for itn in range(n_iter):
-                random.shuffle(TRAIN_DATA)
-                batches = get_batches(TRAIN_DATA, "ner")
+            for itn in range(int(self.kwargs.get("n_iter"))):
+                random.shuffle(train_data)
+                batches = self.get_batches(train_data, "ner")
                 losses = {}
                 for batch in batches:
                     texts, annotations = zip(*batch)
                     # print("DROPOUT NEXT {}".format(next(dropout)))
                     nlp.update(
-                        texts, annotations, sgd=optimizer, drop=next(dropout), losses=losses
+                        texts,
+                        annotations,
+                        sgd=optimizer,
+                        drop=next(dropout),
+                        losses=losses,
                     )
                 print("Losses", losses)
                 loss_plot.append(losses["ner"])
@@ -129,12 +98,13 @@ class TrainSpacy:
             print(ent.label_, ent.text)
 
         # save model to output dir
+        output_dir = self.kwargs.get("output_dir")
         with nlp.use_params(optimizer.averages):
             if output_dir is not None:
                 output_dir = Path(output_dir)
                 if not output_dir.exists():
                     output_dir.mkdir()
-                nlp.meta["name"] = new_model_name  
+                nlp.meta["name"] = self.kwargs.get("new_model_name")
                 nlp.to_disk(output_dir)
                 print("Saved model to", output_dir)
 
@@ -146,24 +116,28 @@ class TrainSpacy:
         assert nlp.get_pipe("ner").move_names == move_names
         doc = nlp(test_text)
         for ent in doc.ents:
-            print("Saved model testing:", ent.label_, ent.text)
+            print("Testing saved model:", ent.label_, ent.text)
 
-        #plot training loss
+        # plot training loss
         plt.plot(loss_plot)
-        plt.show()
+        plt.savefig(os.path.realpath(f"{output_dir}.png"))
 
 
-def main(sys_arg1, sys_arg2, sys_arg3):
+def main(sys_arg1, sys_arg2, sys_arg3, sys_arg4):
     start_time = time.time()
-    dict_arg = {"model_name": sys_arg1,
-                "validation_set": sys_arg2, "entity_config_key": sys_arg3}
-    model_eval = ModelEval(**dict_arg)
-    results = model_eval.model_evaluate()
-    print(results)
-    print(
-        f"validation executed in {time.time() - start_time} seconds"
-    )
+    dict_arg = {
+        "model": None,
+        "new_model_name": "Incremental_model",
+        "output_dir": sys_arg1,
+        "n_iter": sys_arg2,
+        "input_fname": sys_arg3,
+        "entity_config_key": sys_arg4,
+    }
+
+    train_model = TrainSpacy(**dict_arg)
+    train_model.train_spacymodel()
+    print(f"Total training time = {time.time() - start_time} seconds")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

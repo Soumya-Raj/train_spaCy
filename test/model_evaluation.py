@@ -1,26 +1,31 @@
 import spacy
 from spacy.gold import GoldParse
 from spacy.scorer import Scorer
+import sys
+sys.path.append('..')
+import os
 from config.load_config_file import LoadConfigFile
 import time
-import sys
+import ast
+import argparse
 
 
 class ModelEval:
-    
+
     def __init__(self, **kwargs):
         self.kwargs = kwargs
-        self.config = LoadConfigFile.read_config_file(self, "config_file.ini")
-        #self.entity_config_key = entity_config_key
-        self.labels = [self.config["MODEL_ENTITIES"][self.kwargs.get("entity_config_key")]]
-        #print(self.labels)
+        config = LoadConfigFile("config/config_file.ini").read_config_file()
+        #print(config.sections())
+        self.labels = [config["MODEL_ENTITIES"][self.kwargs.get("entity_config_key")]]
 
     def model_evaluate(self):
-        nlp = spacy.load(self.kwargs.get("model_name"))
+        nlp = spacy.load(os.path.realpath(self.kwargs.get("model_path")))
+        print("Loaded %s" % self.kwargs.get("model_path"))
         scorer = Scorer()
-        validation_set = []
-        with open(self.kwargs.get("validation_set"), "w") as f:
-            validation_set = f.read()
+        validation_set = self.kwargs.get("validation_set")
+        print(validation_set)
+        # with open(self.kwargs.get("validation_set"), "w") as f:
+        #     validation_set = f.read()
         for input_, annot in validation_set:
             text_entities = []
             for entity in annot.get("entities"):
@@ -36,12 +41,8 @@ class ModelEval:
 
     def ner_predicte(self):
         test_text = "I need a anti breakage sulphate-free leave in conditioning shampoo 10 oz under $30 for curly hair"
-        # test_text = "I need a red dress for a conference in Dubai under $30 from Nordstorm before 30th march midnight"
-
-        # test the saved model
         print("Loading ner from tained model")
         nlp = spacy.load("trained_model_lg3")
-        # Check the classes have loaded back consistently
         ner = nlp.get_pipe("ner")
         move_names = list(ner.move_names)
         assert nlp.get_pipe("ner").move_names == move_names
@@ -51,38 +52,26 @@ class ModelEval:
             print("Validation :", ent.label_, ent.text)
 
 
-examples = [
-    (
-        "Trump says he's answered Mueller's Russia inquiry questions \u2013 live",
-        {"entities": [[0, 5, "PERSON"], [25, 32, "PERSON"], [35, 41, "GPE"]]},
-    ),
-    (
-        "Alexander Zverev reaches ATP Finals semis then reminds Lendl who is boss",
-        {"entities": [[0, 16, "PERSON"], [55, 60, "PERSON"]]},
-    ),
-    (
-        "Britain's worst landlord to take nine years to pay off string of fines",
-        {"entities": [[0, 7, "GPE"]]},
-    ),
-    (
-        "Tom Watson: people's vote more likely given weakness of May's position",
-        {"entities": [[0, 10, "PERSON"], [56, 59, "PERSON"]]},
-    ),
-]
-
-
-def main(sys_arg1, sys_arg2, sys_arg3):
+def main(args):
+    with open("validation_converted.txt") as f:
+        EXAMPLES = f.read()
+        #print(EXAMPLES)
     start_time = time.time()
-    dict_arg = {"model_name": sys_arg1,
-                "validation_set": sys_arg2, "entity_config_key": sys_arg3}
+    dict_arg = {"model_path": args.model_path,
+                "validation_set": EXAMPLES, "entity_config_key": args.entity_key}
     model_eval = ModelEval(**dict_arg)
     results = model_eval.model_evaluate()
     print(results)
     print(
         f"validation executed in {time.time() - start_time} seconds"
     )
-    
-
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_path', type = str, required=True, help="Folder path of trained model")
+    parser.add_argument('--validation_set', type = str, required=True, help="Folder path of validation set file")
+    parser.add_argument('--entity_key', type = str, required=True, help="Folder path of trained model")
+    
+    args = parser.parse_args()
+
+    main(args)
