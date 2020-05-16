@@ -6,14 +6,13 @@ import time
 import ast
 import sys
 
-#sys.path.append("..")
 from config.load_config_file import LoadConfigFile
 
 
 class ConvertToJson:
     def __init__(
         self, **kwargs
-    ):  # kwargs={"input_fname": sys_arg1, "output_fname": sys_arg2}
+    ):  
         self.kwargs = kwargs
         self.config = LoadConfigFile("config/config_file.ini").read_config_file()
 
@@ -48,7 +47,9 @@ class ConvertToJson:
         if not os.path.exists(output_fpath):
             os.mkdir(output_fpath)
         with open(
-            os.path.relpath(f"../data/doccano_annotated_data/{self.kwargs.get('output_fname')}"), "w"
+            os.path.relpath(
+                f"../data/doccano_annotated_data/{self.kwargs.get('output_fname')}"
+            ),
+            "w",
         ) as f:
             json.dump(final_json, f)
-

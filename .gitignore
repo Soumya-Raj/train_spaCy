@@ -1,11 +1,5 @@
 amazon_dataset
 ORS_serachData
-validation_set_ORS
-train_fold1.log
-trained_model_bl
-auto_annotated_data
-doccano_annotated_data
-Loss_plot
 
 # Editors
 .vscode/

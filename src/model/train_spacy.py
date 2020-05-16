@@ -8,18 +8,16 @@ import matplotlib.pyplot as plt
 from spacy.util import decaying
 import spacy.scorer
 from config.load_config_file import LoadConfigFile
-from json_to_trainTuple import JsonToSpacy
+from utility.json_to_traintuple import JsonToSpacy
 import sys
-sys.path.append('..')
+
 import os
 
 
 class TrainSpacy:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
-        self.config = LoadConfigFile.read_config_file(self, "config_file.ini")
-        # self.labels = [self.config["MODEL_ENTITIES"]
-        #                [self.kwargs.get("entity_config_key")]]
+        self.config = LoadConfigFile("config/config_file.ini").read_config_file()
 
     # optimisation 1 - batch size
     def get_batches(self, train_data, model_type):
@@ -35,10 +33,12 @@ class TrainSpacy:
 
     def train_spacymodel(self):
         train_data = JsonToSpacy.to_spacyformat(self)
-        #print(train_data)
+        # print(train_data)
 
-        labels = ast.literal_eval(self.config["MODEL_ENTITIES"][self.kwargs.get("entity_config_key")])
-        #print(labels)
+        labels = ast.literal_eval(
+            self.config["MODEL_ENTITIES"][self.kwargs.get("entity_config_key")]
+        )
+        # print(labels)
         if self.kwargs.get("model") is not None:
             nlp = spacy.load(self.kwargs.get("model"))
             print("Loaded model '%s'" % self.kwargs.get("model"))
@@ -55,7 +55,6 @@ class TrainSpacy:
             print("Get ner pipeline")
 
         for label in labels:
-            #print(label)
             ner.add_label(label)
 
         if self.kwargs.get("model") is None:
@@ -65,7 +64,7 @@ class TrainSpacy:
 
         pipe_exceptions = ["ner", "trf_wordpiecer", "trf_tok2vec"]
         other_pipes = [pipe for pipe in nlp.pipe_names if pipe not in pipe_exceptions]
-        with nlp.disable_pipes(*other_pipes):  # only train NER
+        with nlp.disable_pipes(*other_pipes):
             # optimisation 2 - dropout
             dropout = decaying(0.6, 0.2, 1e-4)
             # print("DROPOUT {}".format(dropout))
@@ -86,10 +85,12 @@ class TrainSpacy:
                     )
                 print("Losses", losses)
                 loss_plot.append(losses["ner"])
-                with open("train_fold.log", "a") as f:
-                    f.write("%s %s %s\n" % (itn, ",", losses["ner"]))
+                with open(
+                    os.path.relpath("../reports/log/training_loss.log"), "a"
+                ) as f:
+                    f.write("Epoch %s loss: %s\n" % (itn, losses["ner"]))
 
-        # test the trained model
+        # test trained model
         test_text = "I need a anti breakage sulphate-free leave in conditioning shampoo 10 oz under $30 for curly hair"
         doc = nlp(test_text)
 
@@ -97,7 +98,7 @@ class TrainSpacy:
         for ent in doc.ents:
             print(ent.label_, ent.text)
 
-        # save model to output dir
+        # save model to output_dir
         output_dir = self.kwargs.get("output_dir")
         with nlp.use_params(optimizer.averages):
             if output_dir is not None:
@@ -108,7 +109,7 @@ class TrainSpacy:
                 nlp.to_disk(output_dir)
                 print("Saved model to", output_dir)
 
-        # test the saved model
+        # test saved model
         print("Loading from", Path.cwd())
         nlp = spacy.load(output_dir)
         ner = nlp.get_pipe("ner")
@@ -118,26 +119,10 @@ class TrainSpacy:
         for ent in doc.ents:
             print("Testing saved model:", ent.label_, ent.text)
 
-        # plot training loss
+        # plot and save training loss
         plt.plot(loss_plot)
-        plt.savefig(os.path.realpath(f"{output_dir}.png"))
-
-
-def main(sys_arg1, sys_arg2, sys_arg3, sys_arg4):
-    start_time = time.time()
-    dict_arg = {
-        "model": None,
-        "new_model_name": "Incremental_model",
-        "output_dir": sys_arg1,
-        "n_iter": sys_arg2,
-        "input_fname": sys_arg3,
-        "entity_config_key": sys_arg4,
-    }
-
-    train_model = TrainSpacy(**dict_arg)
-    train_model.train_spacymodel()
-    print(f"Total training time = {time.time() - start_time} seconds")
-
-
-if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+        plt.savefig(
+            os.path.realpath(
+                f"../reports/figures/{self.kwargs.get('new_model_name')}.png"
+            )
+        )

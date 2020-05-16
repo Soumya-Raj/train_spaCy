@@ -10,13 +10,11 @@ import random
 from pandas import json_normalize
 import sys
 
-#sys.path.append("..")
 from config.load_config_file import LoadConfigFile
 
 
 class ReadCSV:
     def __init__(self, **kwargs):
-        # kwargs=dict_arg = {"model_name": sys_arg1, "output_fname": sys_arg2,"start_index": sys_arg3, "end_index": sys_arg4}
         self.kwargs = kwargs
         config = LoadConfigFile("config/config_file.ini").read_config_file()
         self.speech_header = config["READ_CSV"]["search_header"]
@@ -35,7 +33,6 @@ class ReadCSV:
                     labels.append([e.start_char, e.end_char, e.label_])
                 annotated_list.append({"text": sent.text, "labels": labels})
         annotated_json = json.dumps(annotated_list)
-        #print(annotated_json)
         return annotated_json
 
     def randomize_list(self, df_list):
@@ -79,31 +76,11 @@ class ReadCSV:
         if not os.path.exists(output_path):
             os.mkdir(output_path)
         df_annotated.to_json(
-                os.path.relpath(f"../data/auto_annotated_data/{self.kwargs.get('output_fname')}") ,
+            os.path.relpath(
+                f"../data/auto_annotated_data/{self.kwargs.get('output_fname')}"
+            ),
             orient="records",
             lines=True,
         )
 
 
-# def main(sys_arg1, sys_arg2, sys_arg3, sys_arg4):
-#     start_time = time.time()
-#     dict_arg = {
-#         "model_name": sys_arg1,
-#         "output_fname": sys_arg2,
-#         "start_index": sys_arg3,
-#         "end_index": sys_arg4,
-#     }
-#     read_csv = ReadCSV(**dict_arg)
-#     df_dict = read_csv.read_csv_as_df()
-#     # read_csv.randomize_list(df_dict)
-#     d_json = read_csv.auto_annotate_data(df_dict)
-#     read_csv.json_to_jsonl(d_json)
-
-#     print(
-#         f"Auto annotated training data using {sys_arg1} in {time.time() - start_time} seconds"
-#     )
-
-
-# if __name__ == "__main__":
-#     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-# # command line format : training_model output_jsonl_filename start_index_skip_row end_index_skip_row

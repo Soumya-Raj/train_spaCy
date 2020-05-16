@@ -12,7 +12,7 @@ config["READ_CSV"] = {
 
 # model_evaluation, doccanoJsonl_to_json
 config["MODEL_ENTITIES"] = {
-    "haircare_entities": "\'CONSUMER_TYPE\',\'BRAND\', \'ORG\', \'CARDINAL\', \'DATE\', \'GPE\', \'LOC\', \'MONEY\', \'PRODUCT\', \'ORDINAL\', \'PERCENT\', \'NORP\', \'EVENT\', \'WORK_OF_ART\', \'FAC\', \'PERSON\', \'TIME\', \'PRODUCT_DESC\', \'QUANTITY\', \'HAIR_TYPE\', \'QUERY\', \'CONSUMER_CATEGORY\',\'FREE_OF\',\'HAIR_CONDITION\',\'HELPS_WITH\',\'INGREDIENT\',\'PRODUCT_BULK\',\'PRODUCT_LINE\'"
+    "haircare_entities": "'CONSUMER_TYPE','BRAND', 'ORG', 'CARDINAL', 'DATE', 'GPE', 'LOC', 'MONEY', 'PRODUCT', 'ORDINAL', 'PERCENT', 'NORP', 'EVENT', 'WORK_OF_ART', 'FAC', 'PERSON', 'TIME', 'PRODUCT_DESC', 'QUANTITY', 'HAIR_TYPE', 'QUERY', 'CONSUMER_CATEGORY','FREE_OF','HAIR_CONDITION','HELPS_WITH','INGREDIENT','PRODUCT_BULK','PRODUCT_LINE'"
 }
 
 # doccanojsonl_to_json

@@ -5,7 +5,7 @@ import ast
 
 
 class JsonToSpacy:
-    def __init__(self, **kwargs):  # kwargs={"input_fname": sys_arg1}
+    def __init__(self, **kwargs):  
         self.kwargs = kwargs
 
     def to_spacyformat(self):
@@ -21,7 +21,3 @@ class JsonToSpacy:
         with open("{}".format(input_fname.replace("json", "txt")), "w") as write:
             write.write(str(train_tuples))
         return train_tuples
-
-
-
-
