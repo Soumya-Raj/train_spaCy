@@ -1,6 +1,6 @@
-amazon_dataset
-ORS_serachData
-virtual_env
+amazon_dataset/
+ORS_serachData/
+virtual_env/
 
 # Editors
 .vscode/
