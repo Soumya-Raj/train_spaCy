@@ -6,7 +6,7 @@ config = configparser.ConfigParser()
 config["READ_CSV"] = {
     "search_header": "Search Query",
     "random_size": 20,
-    "csv_location": "ORS_serachData\\search.csv",
+    "csv_location": "..\\ORS_serachData\\search.csv",
     "nrows": 100,
 }
 

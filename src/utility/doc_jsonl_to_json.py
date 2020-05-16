@@ -4,6 +4,9 @@ import os
 import configparser
 import time
 import ast
+import sys
+
+#sys.path.append("..")
 from config.load_config_file import LoadConfigFile
 
 
@@ -12,10 +15,10 @@ class ConvertToJson:
         self, **kwargs
     ):  # kwargs={"input_fname": sys_arg1, "output_fname": sys_arg2}
         self.kwargs = kwargs
-        self.config = LoadConfigFile.read_config_file(self, "config_file.ini")
+        self.config = LoadConfigFile("config/config_file.ini").read_config_file()
 
     def jsonl_to_json(self):
-        fo = open(self.kwargs.get("input_fname"), "r")
+        fo = open(os.path.relpath(self.kwargs.get("input_fname")), "r")
 
         lines = fo.readlines()
 
@@ -41,23 +44,11 @@ class ConvertToJson:
                 {"content": line[content_term], "entities": line["entities"]}
             )
 
-        if not os.path.exists("data\\doccano_annotated_data"):
-            os.mkdir("data\\doccano_annotated_data")
+        output_fpath = os.path.relpath("../data/doccano_annotated_data")
+        if not os.path.exists(output_fpath):
+            os.mkdir(output_fpath)
         with open(
-            f"data\\doccano_annotated_data\\{self.kwargs.get('output_fname')}", "w"
+            os.path.relpath(f"../data/doccano_annotated_data/{self.kwargs.get('output_fname')}"), "w"
         ) as f:
             json.dump(final_json, f)
 
-
-def main(sys_arg1, sys_arg2):
-    start_time = time.time()
-    dict_arg = {"input_fname": sys_arg1, "output_fname": sys_arg2}
-    convert_to_json = ConvertToJson(**dict_arg)
-    convert_to_json.jsonl_to_json()
-    print(
-        f"Converted doccano json to spacy required json in {time.time() - start_time} seconds"
-    )
-
-
-if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
