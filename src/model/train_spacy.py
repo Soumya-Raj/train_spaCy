@@ -1,7 +1,6 @@
 import random
 from pathlib import Path
 import spacy
-import time
 from spacy.util import minibatch, compounding
 import ast
 import matplotlib.pyplot as plt
@@ -9,7 +8,6 @@ from spacy.util import decaying
 import spacy.scorer
 from config.load_config_file import LoadConfigFile
 from utility.json_to_traintuple import JsonToSpacy
-import sys
 
 import os
 

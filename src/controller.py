@@ -121,3 +121,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args)
+
+
+# SAMPLE COMMAND LINE ARGS
+# python .\controller.py --service generate_data --model_name en_core_web_sm --output_fname auto_annotated_fold1.jsonl --start_index 0 --end_index 0 
+# python .\controller.py --service train_model --output_dir ../models/new --n_iter 5 --input_fname ../data/doccano_annotated_data/doccano_f1_converted.json --entity_key haircare_entities

@@ -1,14 +1,9 @@
-import logging
 import os
-import configparser
 import pandas as pd
 import spacy
-import time
 import json
-from io import StringIO
 import random
 from pandas import json_normalize
-import sys
 
 from config.load_config_file import LoadConfigFile
 
@@ -35,6 +30,7 @@ class ReadCSV:
         annotated_json = json.dumps(annotated_list)
         return annotated_json
 
+    # Trial code to determine change in training behaviour (in progress)
     def randomize_list(self, df_list):
         random_size = 20
         random_list = random.sample(range(len(df_list)), random_size)
@@ -82,5 +78,3 @@ class ReadCSV:
             orient="records",
             lines=True,
         )
-
-

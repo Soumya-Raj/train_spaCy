@@ -1,13 +1,9 @@
 import spacy
 from spacy.gold import GoldParse
 from spacy.scorer import Scorer
-import sys
 
 import os
 from config.load_config_file import LoadConfigFile
-import time
-import ast
-import argparse
 
 
 class ModelEval:
@@ -16,6 +12,7 @@ class ModelEval:
         config = LoadConfigFile("config/config_file.ini").read_config_file()
         self.labels = [config["MODEL_ENTITIES"][self.kwargs.get("entity_config_key")]]
 
+    #in progress
     def model_evaluate(self):
         nlp = spacy.load(os.path.realpath(self.kwargs.get("model_path")))
         print("Loaded %s" % self.kwargs.get("model_path"))

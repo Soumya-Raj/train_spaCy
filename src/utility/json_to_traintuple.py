@@ -1,11 +1,8 @@
 import json
-import time
-import sys
-import ast
 
 
 class JsonToSpacy:
-    def __init__(self, **kwargs):  
+    def __init__(self, **kwargs):
         self.kwargs = kwargs
 
     def to_spacyformat(self):

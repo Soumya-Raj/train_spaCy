@@ -1,18 +1,12 @@
-import sys
 import json
 import os
-import configparser
-import time
 import ast
-import sys
 
 from config.load_config_file import LoadConfigFile
 
 
 class ConvertToJson:
-    def __init__(
-        self, **kwargs
-    ):  
+    def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.config = LoadConfigFile("config/config_file.ini").read_config_file()
 
