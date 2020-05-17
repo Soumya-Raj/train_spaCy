@@ -18,7 +18,7 @@ class ReadCSV:
         print(self.csv_fname)
 
     def auto_annotate_data(self, df_dict):
-        nlp = spacy.load(os.path.relpath(self.kwargs.get("model_name")))
+        nlp = spacy.load(os.path.relpath(f"../models/{self.kwargs.get('model_name')}"))
         annotated_list = []
         for d in df_dict:
             doc = nlp(str(d[self.speech_header]))

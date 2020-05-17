@@ -47,6 +47,7 @@ class TrainSpacy:
         if "ner" not in nlp.pipe_names:
             ner = nlp.create_pipe("ner")
             nlp.add_pipe(ner)
+            nlp.add_pipe(nlp.create_pipe('sentencizer'))
             print("Ner pipeline added")
         else:
             ner = nlp.get_pipe("ner")
@@ -89,7 +90,7 @@ class TrainSpacy:
                     f.write("Epoch %s loss: %s\n" % (itn, losses["ner"]))
 
         # test trained model
-        test_text = "I need a anti breakage sulphate-free leave in conditioning shampoo 10 oz under $30 for curly hair"
+        test_text = "I need a anti breakage sulphate free leave in conditioning shampoo 10 oz under $30 for curly hair"
         doc = nlp(test_text)
 
         print("Entities in '%s'" % test_text)
@@ -97,7 +98,7 @@ class TrainSpacy:
             print(ent.label_, ent.text)
 
         # save model to output_dir
-        output_dir = self.kwargs.get("output_dir")
+        output_dir = os.path.relpath(f"../models/{self.kwargs.get('output_dir')}")
         with nlp.use_params(optimizer.averages):
             if output_dir is not None:
                 output_dir = Path(output_dir)

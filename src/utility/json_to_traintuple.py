@@ -1,12 +1,12 @@
 import json
-
+import os
 
 class JsonToSpacy:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
     def to_spacyformat(self):
-        input_fname = self.kwargs.get("input_fname")
+        input_fname = os.path.relpath(f"../data/doccano_annotated_data/{self.kwargs.get('input_fname')}")
         with open(input_fname) as f:
             train_data = json.load(f)
 

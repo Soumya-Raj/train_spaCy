@@ -11,7 +11,7 @@ class ConvertToJson:
         self.config = LoadConfigFile("config/config_file.ini").read_config_file()
 
     def jsonl_to_json(self):
-        fo = open(os.path.relpath(self.kwargs.get("input_fname")), "r")
+        fo = open(os.path.relpath(f"../data/doccano_annotated_data/{self.kwargs.get('input_fname')}"), "r")
 
         lines = fo.readlines()
 

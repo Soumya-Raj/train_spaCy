@@ -12,7 +12,7 @@ class ModelEval:
         config = LoadConfigFile("config/config_file.ini").read_config_file()
         self.labels = [config["MODEL_ENTITIES"][self.kwargs.get("entity_config_key")]]
 
-    #in progress
+    # in progress
     def model_evaluate(self):
         nlp = spacy.load(os.path.realpath(self.kwargs.get("model_path")))
         print("Loaded %s" % self.kwargs.get("model_path"))

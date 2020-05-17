@@ -74,19 +74,19 @@ if __name__ == "__main__":
         "--service", type=str, required=True, help="Service to be invoked"
     )
     parser.add_argument(
-        "--model_name", type=str, required=False, help="Relative path of model"
+        "--model_name", type=str, required=False, help="Name of trained model"
     )
     parser.add_argument(
         "--output_fname",
         type=str,
         required=False,
-        help="Relative path to save annotated file",
+        help="Name of annotated file to be saved",
     )
     parser.add_argument(
         "--input_fname",
         type=str,
         required=False,
-        help="Relative path to input doccano annotated jsonl file",
+        help="Name of doccano annotated jsonl file",
     )
     parser.add_argument(
         "--start_index", type=int, required=False, help="Start index of fold from csv"
@@ -110,13 +110,13 @@ if __name__ == "__main__":
         help="Key value for list of entity names from config file",
     )
     parser.add_argument(
-        "--model_path", type=str, required=True, help="Relative path of trained model"
+        "--model_path", type=str, required=False, help="Name of trained model for validation"
     )
     parser.add_argument(
         "--validation_set",
         type=str,
-        required=True,
-        help="Relative path of validation set file",
+        required=False,
+        help="Name of validation set file",
     )
     args = parser.parse_args()
 
@@ -124,5 +124,5 @@ if __name__ == "__main__":
 
 
 # SAMPLE COMMAND LINE ARGS
-# python .\controller.py --service generate_data --model_name en_core_web_sm --output_fname auto_annotated_fold1.jsonl --start_index 0 --end_index 0 
-# python .\controller.py --service train_model --output_dir ../models/new --n_iter 5 --input_fname ../data/doccano_annotated_data/doccano_f1_converted.json --entity_key haircare_entities
+# python .\controller.py --service generate_data --model_name ORS_v3 --output_fname auto_annotated_fold1.jsonl --start_index 0 --end_index 0
+# python .\controller.py --service train_model --output_dir ORS_v4 --n_iter 50 --input_fname doccano_f1_converted.json --entity_key haircare_entities
